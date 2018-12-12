@@ -35,7 +35,7 @@ Support .NET Core 2.0 and .NET Framework 4.6
     <target xsi:type="LineNotify"
             name="Line"
             layout="${message}"
-            AccessToken="r5eVQB8YtNUCiWGcoEszZESivGeWZVaDHd4G1zh5Wm2"/>
+            AccessToken="XXX"/>
   </targets>
 
   <rules>
