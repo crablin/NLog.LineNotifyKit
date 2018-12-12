@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Line Notify on NLog
+[https://notify-bot.line.me]</Description>
+    <Copyright>Crab Lin</Copyright>
+    <Authors>Crab Lin</Authors>
+    <RepositoryUrl>https://github.com/crablin/NLog.LineNotifyKit</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NLog" Version="4.5.4" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+</Project>
