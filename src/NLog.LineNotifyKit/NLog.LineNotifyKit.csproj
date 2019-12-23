@@ -7,6 +7,8 @@
     <Copyright>Crab Lin</Copyright>
     <Authors>Crab Lin</Authors>
     <RepositoryUrl>https://github.com/crablin/NLog.LineNotifyKit</RepositoryUrl>
+    <Version>1.1.1</Version>
+    <PackageReleaseNotes>Fix bug on Normal Target</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

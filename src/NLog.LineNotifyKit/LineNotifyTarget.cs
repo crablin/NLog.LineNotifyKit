@@ -1,14 +1,12 @@
-﻿using System;
+﻿using NLog.Config;
+using NLog.Targets;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using NLog.Common;
-using NLog.Config;
-using NLog.Targets;
+using System.Threading.Tasks;
 
 namespace NLog.LineNotifyKit
 {
@@ -33,52 +31,39 @@ namespace NLog.LineNotifyKit
             base.InitializeTarget();
         }
 
-        protected override async void Write(AsyncLogEventInfo info)
+        protected override void Write(LogEventInfo info)
         {
-            try
-            {
-                var dataContent = GenerateLineNotifyRequest(info);
+            var dataContent = GenerateLineNotifyRequest(info);
 
-                if (!LineNotifyLogQueue.Counter.ContainsKey(_currentProcessId))
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+
+                var response = client.PostAsync("https://notify-api.line.me/api/notify", dataContent).Result;
+
+                if (response.StatusCode != HttpStatusCode.OK)
                 {
-                    LineNotifyLogQueue.Counter.TryAdd(_currentProcessId, new StrongBox<int>(0));
+                    throw new HttpRequestException(response.Content.ReadAsStringAsync().Result);
                 }
 
-                using (var client = new HttpClient())
-                {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
-                    
-                    Interlocked.Increment(ref LineNotifyLogQueue.Counter[_currentProcessId].Value);
 
-                    var response = await client.PostAsync("https://notify-api.line.me/api/notify", dataContent);
-                    
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        throw new HttpRequestException(await response.Content.ReadAsStringAsync());
-                    }
+            }
 
-                    Interlocked.Decrement(ref LineNotifyLogQueue.Counter[_currentProcessId].Value);
-                }
-            }
-            catch (Exception e)
-            {
-                info.Continuation(e);
-            }
         }
 
-        private MultipartFormDataContent GenerateLineNotifyRequest(AsyncLogEventInfo info)
+        private MultipartFormDataContent GenerateLineNotifyRequest(LogEventInfo info)
         {
-            string message = Layout.Render(info.LogEvent);
+            string message = Layout.Render(info);
 
             var result = new MultipartFormDataContent();
 
-            if (info.LogEvent.Parameters != null)
+            if (info.Parameters != null)
             {
-                foreach (var param in info.LogEvent.Parameters)
+                foreach (var param in info.Parameters)
                 {
                     if (param is ILineNotifyLogger lineNotifyLogger)
                     {
-                        var request = lineNotifyLogger.ToLineNotifyRequest(info.LogEvent);
+                        var request = lineNotifyLogger.ToLineNotifyRequest(info);
 
                         message = string.Concat(message, request.Message);
 

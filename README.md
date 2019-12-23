@@ -66,7 +66,7 @@ var logger = _factory.GetCurrentClassLogger();
 
 logger.Info("message");
 
-SlackLogQueue.WaitAsyncCompleted().Wait();
+LineNotifyLogQueue.WaitAsyncCompleted().Wait();
 
 ```
 
